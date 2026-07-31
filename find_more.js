@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      2.3
+// @version      2.4
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -30,7 +30,8 @@
             sc: { nrtool: 'sc', cgfinder: 'sc', statbate: 2 },
             cam4: { nrtool: 'cam4', cgfinder: 'c4', statbate: null },
             cs: { nrtool: 'cs', cgfinder: 'cs', statbate: 4 },
-            recu: { nrtool: 'cb', cgfinder: 'cb', statbate: 1 }
+            recu: { nrtool: 'cb', cgfinder: 'cb', statbate: 1 },
+            cf: { nrtool: 'cb', cgfinder: 'cb', statbate: 1 }
         },
 
         getSiteKey() {
@@ -70,7 +71,7 @@
 
         makeButtons(siteKey, modelName, cls) {
             const cfg = common.SITES[siteKey];
-            const nrtoolSuffix = (siteKey === 'cb' || siteKey === 'sc') ? '/1?group_by=week' : '';
+            const nrtoolSuffix = (siteKey === 'cb' || siteKey === 'sc' || siteKey === 'cf') ? '/1?group_by=week' : '';
             const buttons = [
                 common.createButton(
                     'recume-button',
@@ -145,7 +146,7 @@
 
                 common.createButton(
                     'recume-performer-button',
-                    siteKey === 'recu'
+                    (siteKey === 'recu' || siteKey === 'cf')
                         ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"/>
@@ -164,6 +165,18 @@
                 ),
 
                 common.createButton(
+                    'chaturbate-button',
+                    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                       <defs><linearGradient id="cbmark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d8b"/><stop offset="1" stop-color="#9b2ff2"/></linearGradient></defs>
+                       <rect x="1" y="1" width="22" height="22" rx="7" fill="url(#cbmark)"/>
+                       <circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="1.6"/>
+                       <circle cx="12" cy="12" r="1.4" fill="#fff"/>
+                     </svg>`,
+                    () => window.open(`https://chaturbate.com/${modelName}/`, '_blank'),
+                    (cls ? cls + ' ' : '') + 'chaturbate-button'
+                ),
+
+                common.createButton(
                     'statbate-button',
                     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/>
@@ -174,8 +187,9 @@
                     cls
                 )
             ];
-            buttons.find(b => b.id === 'recume-performer-button').dataset.sites = 'cb,recu';
-            buttons.find(b => b.id === 'statbate-button').dataset.sites = 'cb,sc,cs,recu';
+            buttons.find(b => b.id === 'recume-performer-button').dataset.sites = 'cb,recu,cf';
+            buttons.find(b => b.id === 'statbate-button').dataset.sites = 'cb,sc,cs,recu,cf';
+            buttons.find(b => b.id === 'chaturbate-button').dataset.sites = 'cf';
             if (siteKey === 'recu') {
                 const cb = buttons.find(b => b.id === 'recume-performer-button');
                 buttons.splice(buttons.indexOf(cb), 1);
@@ -437,7 +451,7 @@
 
         common.mountButtons('.js-profile-meta', {
             id: 'cfinder-group',
-            siteKey: 'cb',
+            siteKey: 'cf',
             cls: 'cffinder-tab',
             modelName: () => {
                 const span = document.querySelector('.js-profile-meta h1 .d-inline-flex span');
