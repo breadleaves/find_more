@@ -24,11 +24,11 @@
 
     const common = {
         SITES: {
-            cb:   { nrtool: 'cb',   cgfinder: 'cb',   statbate: 1 },
-            sc:   { nrtool: 'sc',   cgfinder: 'sc',   statbate: 2 },
-            cam4: { nrtool: 'cam4', cgfinder: 'c4',   statbate: null },
-            cs:   { nrtool: 'cs',   cgfinder: 'cs',   statbate: 4 },
-            recu: { nrtool: 'cb',   cgfinder: 'cb',   statbate: 1 }
+            cb: { nrtool: 'cb', cgfinder: 'cb', statbate: 1 },
+            sc: { nrtool: 'sc', cgfinder: 'sc', statbate: 2 },
+            cam4: { nrtool: 'cam4', cgfinder: 'c4', statbate: null },
+            cs: { nrtool: 'cs', cgfinder: 'cs', statbate: 4 },
+            recu: { nrtool: 'cb', cgfinder: 'cb', statbate: 1 }
         },
 
         getSiteKey() {
