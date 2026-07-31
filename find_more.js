@@ -139,7 +139,6 @@
     };
 
     function initStripchat() {
-        let inserted = false;
         const css = `
             .scfinder-tab {
                 display:inline-flex !important;
@@ -159,28 +158,32 @@
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
+        let lastModel = null;
+        let lastTarget = null;
+
         const observer = new MutationObserver(() => {
-            if (inserted) return;
             const modelName = common.getModelName();
             const target = document.querySelector('.view-cam-buttons-wrapper');
             if (!modelName || !target) return;
 
-            ['simpcity-button','cgfinder-button','recume-button','search-button','camwhores-button','forum-button','recume-performer-button','statbate-button'].forEach(id => {
-                const old = document.getElementById(id); if (old) old.remove();
-            });
+            const group = document.getElementById('scfinder-group');
+            if (lastModel === modelName && lastTarget === target && group && group.isConnected) return;
 
-            const group = document.createElement('div');
-            group.style.display = 'flex';
-            group.style.gap = '18px';
-            group.style.alignItems = 'center';
+            if (group) group.remove();
+
+            const newGroup = document.createElement('div');
+            newGroup.id = 'scfinder-group';
+            newGroup.style.display = 'flex';
+            newGroup.style.gap = '18px';
+            newGroup.style.alignItems = 'center';
             common.makeButtons(modelName, 'scfinder-tab')
                 .filter(b => !b.dataset.cbOnly)
-                .forEach(btn => group.appendChild(btn));
-            target.parentNode.insertBefore(group, target);
-            inserted = true;
+                .forEach(btn => newGroup.appendChild(btn));
+            target.parentNode.insertBefore(newGroup, target);
+            lastModel = modelName;
+            lastTarget = target;
         });
         observer.observe(document.body, {childList: true, subtree: true});
-        setTimeout(() => { observer.takeRecords(); }, 800);
     }
 
     function initChaturbate() {
