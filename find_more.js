@@ -301,7 +301,16 @@
             id: 'cam4finder-group',
             siteKey: 'cam4',
             cls: 'cam4finder-tab',
-            modelName: () => document.querySelector('span[class^="index__performerName__"]')?.textContent.trim() || common.getModelName(),
+            modelName: () => {
+                const meta = document.querySelector('meta[name="Description"]');
+                if (meta) {
+                    const match = meta.content.match(/Watch & Chat with (.+?)\. Streaming/);
+                    if (match) return match[1].trim();
+                }
+                const span = document.querySelector('span[class^="index__performerName__"]');
+                if (span) return span.textContent.trim();
+                return common.getModelName();
+            },
             style(g) {
                 g.style.display = 'flex';
                 g.style.alignItems = 'center';
