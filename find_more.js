@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      2.2
+// @version      2.3
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -191,7 +191,26 @@
         mountButtons(selector, config) {
             let lastTarget = null;
             const observer = new MutationObserver(() => {
-                const target = document.querySelector(selector);
+                const selectors = Array.isArray(selector) ? selector : [selector];
+                let target = null;
+                for (const sel of selectors) {
+                    for (const node of document.querySelectorAll(sel)) {
+                        if (node.getClientRects().length > 0) {
+                            target = node;
+                            break;
+                        }
+                    }
+                    if (target) break;
+                }
+                if (!target) {
+                    for (const sel of selectors) {
+                        const node = document.querySelector(sel);
+                        if (node) {
+                            target = node;
+                            break;
+                        }
+                    }
+                }
                 if (!target) return;
 
                 let modelName = config.modelName ? config.modelName() : null;
@@ -311,7 +330,10 @@
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
-        common.mountButtons('[class^="ProfileBanner__buttonsContainerSmall__"]', {
+        common.mountButtons([
+            '[class^="ProfileBanner__buttonsContainerSmall__"]',
+            '[class^="index__visitorActions__"]'
+        ], {
             id: 'cam4finder-group',
             siteKey: 'cam4',
             cls: 'cam4finder-tab',
@@ -323,6 +345,8 @@
                 }
                 const span = document.querySelector('span[class^="index__performerName__"]');
                 if (span) return span.textContent.trim();
+                const name = document.querySelector('[class^="index__profileName__"]');
+                if (name) return name.textContent.trim();
                 return common.getModelName();
             },
             style(g) {
