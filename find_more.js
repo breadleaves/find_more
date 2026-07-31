@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      2.4
+// @version      2.5
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -177,6 +177,15 @@
                 ),
 
                 common.createButton(
+                    'chaturfier-button',
+                    `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                      </svg>`,
+                    () => window.open(`https://chaturfier.com/cams/${modelName}/`, '_blank'),
+                    cls
+                ),
+
+                common.createButton(
                     'statbate-button',
                     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/>
@@ -190,6 +199,7 @@
             buttons.find(b => b.id === 'recume-performer-button').dataset.sites = 'cb,recu,cf';
             buttons.find(b => b.id === 'statbate-button').dataset.sites = 'cb,sc,cs,recu,cf';
             buttons.find(b => b.id === 'chaturbate-button').dataset.sites = 'cf';
+            buttons.find(b => b.id === 'chaturfier-button').dataset.sites = 'cb,recu';
             if (siteKey === 'recu') {
                 const cb = buttons.find(b => b.id === 'recume-performer-button');
                 buttons.splice(buttons.indexOf(cb), 1);
@@ -322,7 +332,7 @@
             const bar = document.querySelector('.tabBar');
             if (!bar) return;
 
-            ['simpcity-button','cgfinder-button','recume-button','search-button','camwhores-button','forum-button','recume-performer-button','statbate-button'].forEach(id => {
+            ['simpcity-button','cgfinder-button','recume-button','search-button','camwhores-button','forum-button','recume-performer-button','chaturfier-button','statbate-button'].forEach(id => {
                 const el=document.getElementById(id); if(el) el.remove();
             });
 
