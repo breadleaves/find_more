@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      1.7
+// @version      1.8
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
+// @updateURL    https://raw.githubusercontent.com/breadleaves/find_more/main/find_more.js
+// @downloadURL  https://raw.githubusercontent.com/breadleaves/find_more/main/find_more.js
 // @match        https://stripchat.com/*
 // @match        https://*.stripchat.com/*
 // @match        https://chaturbate.com/*
