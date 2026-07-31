@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      1.6
+// @version      1.7
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -12,8 +12,8 @@
 // @match        https://www.cam4.com/*
 // @match        https://camsoda.com/*
 // @match        https://www.camsoda.com/*
-// @match        https://flirt4free.com/*
-// @match        https://*.flirt4free.com/*
+// @match        https://recu.me/*
+// @match        https://*.recu.me/*
 // @grant        none
 // ==/UserScript==
 
@@ -26,7 +26,7 @@
             sc:   { nrtool: 'sc',   cgfinder: 'sc',   statbate: 2 },
             cam4: { nrtool: 'cam4', cgfinder: 'c4',   statbate: null },
             cs:   { nrtool: 'cs',   cgfinder: 'cs',   statbate: 4 },
-            f4f:  { nrtool: 'f4f',  cgfinder: 'f4f',  statbate: null }
+            recu: { nrtool: 'cb',   cgfinder: 'cb',   statbate: 1 }
         },
 
         getSiteKey() {
@@ -35,13 +35,13 @@
             if (host.includes('chaturbate')) return 'cb';
             if (host.includes('cam4')) return 'cam4';
             if (host.includes('camsoda')) return 'cs';
-            if (host.includes('flirt4free')) return 'f4f';
+            if (host.includes('recu.me')) return 'recu';
             return null;
         },
 
         getModelName() {
             const path = window.location.pathname.split('/');
-            if (path[1] === 'models' && path[2] === 'bios' && path[3]) return path[3];
+            if (path[1] === 'performer' && path[2]) return path[2];
             const model = path[1];
             if (model && !['female', 'male', 'trans', 'new', 'tags', 'login', 'signup'].includes(model)) {
                 return model;
@@ -142,7 +142,10 @@
                     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                        <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"/>
                       </svg>`,
-                    () => window.open(`https://recu.me/performer/${modelName}`, '_blank'),
+                    () => {
+                        const url = siteKey === 'recu' ? `https://chaturbate.com/${modelName}/` : `https://recu.me/performer/${modelName}`;
+                        window.open(url, '_blank');
+                    },
                     cls
                 ),
 
@@ -157,8 +160,8 @@
                     cls
                 )
             ];
-            buttons.find(b => b.id === 'recume-performer-button').dataset.sites = 'cb';
-            buttons.find(b => b.id === 'statbate-button').dataset.sites = 'cb,sc,cs';
+            buttons.find(b => b.id === 'recume-performer-button').dataset.sites = 'cb,recu';
+            buttons.find(b => b.id === 'statbate-button').dataset.sites = 'cb,sc,cs,recu';
             return buttons;
         },
 
@@ -282,8 +285,8 @@
                 transition:all .2s;cursor:pointer;
             }
             .cam4finder-tab:hover{background:#ff6c00;border-color:#ff6c00;color:#fff;}
-            .cam4finder-tab svg{width:18px;height:18px;stroke:currentColor;fill:none;}
-            .simpcity-button svg{fill:currentColor;stroke:currentColor;}
+            .cam4finder-tab svg{width:18px;height:18px;stroke:#fff;fill:none;}
+            .cam4finder-tab.simpcity-button svg{fill:#fff;stroke:#fff;}
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
@@ -333,38 +336,27 @@
         });
     }
 
-    function initFlirt4Free() {
+    function initRecu() {
         const css = `
-            .f4ffinder-link,.f4ffinder-room {
-                display:flex;align-items:center;gap:8px;
-                padding:6px 0;color:#9BAFC2;cursor:pointer;text-decoration:none;
-                border-bottom:1px solid #323541;
+            .recufinder-tab {
+                display:inline-flex;align-items:center;justify-content:center;
+                height:32px;border-radius:6px;padding:0 10px;margin:0 4px 4px 0;
+                border:1px solid #ced4da;background:#fff;color:#6c757d;
+                text-decoration:none;transition:all .2s;cursor:pointer;
             }
-            .f4ffinder-link:hover,.f4ffinder-room:hover{color:#fff;}
-            .f4ffinder-link svg,.f4ffinder-room svg{width:16px;height:16px;stroke:currentColor;fill:none;}
+            .recufinder-tab:hover{background:#f8f9fa;border-color:#f0a63e;color:#000;}
+            .recufinder-tab svg{width:16px;height:16px;stroke:currentColor;fill:none;}
             .simpcity-button svg{fill:currentColor;stroke:currentColor;}
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
-        common.mountButtons('#profile_actions .side-menu-items', {
-            id: 'f4f-sidebar-group',
-            siteKey: 'f4f',
-            cls: 'f4ffinder-link',
+        common.mountButtons('.performer-info-text', {
+            id: 'recufinder-group',
+            siteKey: 'recu',
+            cls: 'recufinder-tab',
             style(g) {
                 g.style.display = 'block';
-                g.style.padding = '6px 0';
-            },
-            insert(target, g) {
-                target.appendChild(g);
-            }
-        });
-        common.mountButtons('.mini-links-info .links-info', {
-            id: 'f4f-room-group',
-            siteKey: 'f4f',
-            cls: 'f4ffinder-room',
-            style(g) {
-                g.style.display = 'block';
-                g.style.padding = '6px 0';
+                g.style.marginTop = '12px';
             },
             insert(target, g) {
                 target.appendChild(g);
@@ -377,6 +369,6 @@
         case 'cb': initChaturbate(); break;
         case 'cam4': initCam4(); break;
         case 'cs': initCamsoda(); break;
-        case 'f4f': initFlirt4Free(); break;
+        case 'recu': initRecu(); break;
     }
 })();
