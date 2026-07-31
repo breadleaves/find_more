@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      1.5
+// @version      1.6
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -8,6 +8,12 @@
 // @match        https://*.stripchat.com/*
 // @match        https://chaturbate.com/*
 // @match        https://*.chaturbate.com/*
+// @match        https://cam4.com/*
+// @match        https://www.cam4.com/*
+// @match        https://camsoda.com/*
+// @match        https://www.camsoda.com/*
+// @match        https://flirt4free.com/*
+// @match        https://*.flirt4free.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -15,8 +21,27 @@
     'use strict';
 
     const common = {
+        SITES: {
+            cb:   { nrtool: 'cb',   cgfinder: 'cb',   statbate: 1 },
+            sc:   { nrtool: 'sc',   cgfinder: 'sc',   statbate: 2 },
+            cam4: { nrtool: 'cam4', cgfinder: 'c4',   statbate: null },
+            cs:   { nrtool: 'cs',   cgfinder: 'cs',   statbate: 4 },
+            f4f:  { nrtool: 'f4f',  cgfinder: 'f4f',  statbate: null }
+        },
+
+        getSiteKey() {
+            const host = window.location.hostname;
+            if (host.includes('stripchat')) return 'sc';
+            if (host.includes('chaturbate')) return 'cb';
+            if (host.includes('cam4')) return 'cam4';
+            if (host.includes('camsoda')) return 'cs';
+            if (host.includes('flirt4free')) return 'f4f';
+            return null;
+        },
+
         getModelName() {
             const path = window.location.pathname.split('/');
+            if (path[1] === 'models' && path[2] === 'bios' && path[3]) return path[3];
             const model = path[1];
             if (model && !['female', 'male', 'trans', 'new', 'tags', 'login', 'signup'].includes(model)) {
                 return model;
@@ -37,7 +62,9 @@
             return a;
         },
 
-        makeButtons(modelName, cls) {
+        makeButtons(siteKey, modelName, cls) {
+            const cfg = common.SITES[siteKey];
+            const nrtoolSuffix = (siteKey === 'cb' || siteKey === 'sc') ? '/1?group_by=week' : '';
             const buttons = [
                 common.createButton(
                     'recume-button',
@@ -45,8 +72,7 @@
                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/>
                       </svg>`,
                     () => {
-                        const site = window.location.hostname.includes("stripchat") ? "sc" : "cb";
-                        window.open(`https://nrtool.st/nrtool/history/${site}/${modelName}/1?group_by=week`, '_blank');
+                        window.open(`https://nrtool.st/nrtool/history/${cfg.nrtool}/${modelName}${nrtoolSuffix}`, '_blank');
                     },
                     cls
                 ),
@@ -57,8 +83,7 @@
                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                      </svg>`,
                     () => {
-                        const site = window.location.hostname.includes("stripchat") ? "sc" : "cb";
-                        window.open(`https://camgirlfinder.net/models/${site}/${modelName}`, '_blank');
+                        window.open(`https://camgirlfinder.net/models/${cfg.cgfinder}/${modelName}`, '_blank');
                     },
                     cls
                 ),
@@ -127,14 +152,43 @@
                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/>
                       </svg>`,
                     () => {
-                        const site = window.location.hostname.includes("stripchat") ? 2 : 1;
-                        window.open(`https://statbate.com/search/${site}/${modelName}`, '_blank');
+                        window.open(`https://statbate.com/search/${cfg.statbate}/${modelName}`, '_blank');
                     },
                     cls
                 )
             ];
-            buttons.find(b => b.id === 'recume-performer-button').dataset.cbOnly = '1';
+            buttons.find(b => b.id === 'recume-performer-button').dataset.sites = 'cb';
+            buttons.find(b => b.id === 'statbate-button').dataset.sites = 'cb,sc,cs';
             return buttons;
+        },
+
+        filterForSite(buttons, siteKey) {
+            return buttons.filter(b => !b.dataset.sites || b.dataset.sites.split(',').includes(siteKey));
+        },
+
+        mountButtons(selector, config) {
+            let lastModel = null;
+            let lastTarget = null;
+            const observer = new MutationObserver(() => {
+                const modelName = common.getModelName();
+                const target = document.querySelector(selector);
+                if (!modelName || !target) return;
+
+                const group = document.getElementById(config.id);
+                if (lastModel === modelName && lastTarget === target && group && group.isConnected) return;
+
+                if (group) group.remove();
+
+                const newGroup = document.createElement('div');
+                newGroup.id = config.id;
+                if (config.style) config.style(newGroup);
+                common.filterForSite(common.makeButtons(config.siteKey, modelName, config.cls), config.siteKey)
+                    .forEach(btn => newGroup.appendChild(btn));
+                config.insert(target, newGroup);
+                lastModel = modelName;
+                lastTarget = target;
+            });
+            observer.observe(document.body, {childList: true, subtree: true});
         }
     };
 
@@ -158,32 +212,19 @@
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
-        let lastModel = null;
-        let lastTarget = null;
-
-        const observer = new MutationObserver(() => {
-            const modelName = common.getModelName();
-            const target = document.querySelector('.view-cam-buttons-wrapper');
-            if (!modelName || !target) return;
-
-            const group = document.getElementById('scfinder-group');
-            if (lastModel === modelName && lastTarget === target && group && group.isConnected) return;
-
-            if (group) group.remove();
-
-            const newGroup = document.createElement('div');
-            newGroup.id = 'scfinder-group';
-            newGroup.style.display = 'flex';
-            newGroup.style.gap = '18px';
-            newGroup.style.alignItems = 'center';
-            common.makeButtons(modelName, 'scfinder-tab')
-                .filter(b => !b.dataset.cbOnly)
-                .forEach(btn => newGroup.appendChild(btn));
-            target.parentNode.insertBefore(newGroup, target);
-            lastModel = modelName;
-            lastTarget = target;
+        common.mountButtons('.view-cam-buttons-wrapper', {
+            id: 'scfinder-group',
+            siteKey: 'sc',
+            cls: 'scfinder-tab',
+            style(g) {
+                g.style.display = 'flex';
+                g.style.gap = '18px';
+                g.style.alignItems = 'center';
+            },
+            insert(target, g) {
+                target.parentNode.insertBefore(g, target);
+            }
         });
-        observer.observe(document.body, {childList: true, subtree: true});
     }
 
     function initChaturbate() {
@@ -228,10 +269,114 @@
                 const el=document.getElementById(id); if(el) el.remove();
             });
 
-            common.makeButtons(model, 'cgfinder-tab').reverse().forEach(btn => bar.insertBefore(btn, bar.firstChild));
+            common.filterForSite(common.makeButtons('cb', model, 'cgfinder-tab'), 'cb').reverse().forEach(btn => bar.insertBefore(btn, bar.firstChild));
         }, 1000);
     }
 
-    if (window.location.hostname.includes('stripchat')) initStripchat();
-    else if (window.location.hostname.includes('chaturbate')) initChaturbate();
+    function initCam4() {
+        const css = `
+            .cam4finder-tab {
+                display:inline-flex;justify-content:center;align-items:center;
+                width:32px;height:32px;border-radius:50%;
+                border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;
+                transition:all .2s;cursor:pointer;
+            }
+            .cam4finder-tab:hover{background:#ff6c00;border-color:#ff6c00;color:#fff;}
+            .cam4finder-tab svg{width:18px;height:18px;stroke:currentColor;fill:none;}
+            .simpcity-button svg{fill:currentColor;stroke:currentColor;}
+        `;
+        document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
+
+        common.mountButtons('[class^="ProfileBanner__buttonsContainerSmall__"]', {
+            id: 'cam4finder-group',
+            siteKey: 'cam4',
+            cls: 'cam4finder-tab',
+            style(g) {
+                g.style.display = 'flex';
+                g.style.alignItems = 'center';
+                g.style.gap = '8px';
+                g.style.marginLeft = '10px';
+            },
+            insert(target, g) {
+                target.appendChild(g);
+            }
+        });
+    }
+
+    function initCamsoda() {
+        const css = `
+            .csfinder-tab {
+                display:inline-flex;justify-content:center;align-items:center;
+                width:30px;height:30px;border-radius:50%;
+                border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;
+                transition:all .2s;cursor:pointer;
+            }
+            .csfinder-tab:hover{background:#00c0c9;border-color:#00c0c9;color:#fff;}
+            .csfinder-tab svg{width:16px;height:16px;stroke:currentColor;fill:none;}
+            .simpcity-button svg{fill:currentColor;stroke:currentColor;}
+        `;
+        document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
+
+        common.mountButtons('[class^="header-module__topLeftMenu--"]', {
+            id: 'csfinder-group',
+            siteKey: 'cs',
+            cls: 'csfinder-tab',
+            style(g) {
+                g.style.display = 'flex';
+                g.style.alignItems = 'center';
+                g.style.gap = '6px';
+                g.style.marginLeft = '8px';
+            },
+            insert(target, g) {
+                target.appendChild(g);
+            }
+        });
+    }
+
+    function initFlirt4Free() {
+        const css = `
+            .f4ffinder-link,.f4ffinder-room {
+                display:flex;align-items:center;gap:8px;
+                padding:6px 0;color:#9BAFC2;cursor:pointer;text-decoration:none;
+                border-bottom:1px solid #323541;
+            }
+            .f4ffinder-link:hover,.f4ffinder-room:hover{color:#fff;}
+            .f4ffinder-link svg,.f4ffinder-room svg{width:16px;height:16px;stroke:currentColor;fill:none;}
+            .simpcity-button svg{fill:currentColor;stroke:currentColor;}
+        `;
+        document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
+
+        common.mountButtons('#profile_actions .side-menu-items', {
+            id: 'f4f-sidebar-group',
+            siteKey: 'f4f',
+            cls: 'f4ffinder-link',
+            style(g) {
+                g.style.display = 'block';
+                g.style.padding = '6px 0';
+            },
+            insert(target, g) {
+                target.appendChild(g);
+            }
+        });
+        common.mountButtons('.mini-links-info .links-info', {
+            id: 'f4f-room-group',
+            siteKey: 'f4f',
+            cls: 'f4ffinder-room',
+            style(g) {
+                g.style.display = 'block';
+                g.style.padding = '6px 0';
+            },
+            insert(target, g) {
+                target.appendChild(g);
+            }
+        });
+    }
+
+    switch (common.getSiteKey()) {
+        case 'sc': initStripchat(); break;
+        case 'cb': initChaturbate(); break;
+        case 'cam4': initCam4(); break;
+        case 'cs': initCamsoda(); break;
+        case 'f4f': initFlirt4Free(); break;
+    }
 })();
