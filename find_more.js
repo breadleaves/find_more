@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      1.8
+// @version      1.9
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -16,6 +16,8 @@
 // @match        https://www.camsoda.com/*
 // @match        https://recu.me/*
 // @match        https://*.recu.me/*
+// @match        https://chaturfier.com/*
+// @match        https://*.chaturfier.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -38,12 +40,14 @@
             if (host.includes('cam4')) return 'cam4';
             if (host.includes('camsoda')) return 'cs';
             if (host.includes('recu.me')) return 'recu';
+            if (host.includes('chaturfier')) return 'cf';
             return null;
         },
 
         getModelName() {
             const path = window.location.pathname.split('/');
             if (path[1] === 'performer' && path[2]) return path[2];
+            if (path[1] === 'cams' && path[2]) return path[2];
             const model = path[1];
             if (model && !['female', 'male', 'trans', 'new', 'tags', 'login', 'signup'].includes(model)) {
                 return model;
@@ -388,11 +392,50 @@
         });
     }
 
+    function initChaturfier() {
+        const css = `
+            .cffinder-tab {
+                display:inline-flex;align-items:center;justify-content:center;
+                width:34px;height:34px;border-radius:50%;
+                border:1px solid #ced4da;background:#fff;color:#6c757d;
+                text-decoration:none;transition:all .2s;cursor:pointer;
+            }
+            .cffinder-tab:hover{background:#f8f9fa;border-color:#f0a63e;color:#000;}
+            .cffinder-tab svg{width:16px;height:16px;stroke:currentColor;fill:none;}
+            .simpcity-button svg{fill:currentColor;stroke:currentColor;}
+        `;
+        document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
+
+        common.mountButtons('.js-profile-meta', {
+            id: 'cfinder-group',
+            siteKey: 'cb',
+            cls: 'cffinder-tab',
+            modelName: () => {
+                const span = document.querySelector('.js-profile-meta h1 .d-inline-flex span');
+                if (span) return span.textContent.trim();
+                const meta = document.querySelector('.js-profile-meta');
+                if (meta && meta.dataset.name) return meta.dataset.name;
+                return null;
+            },
+            style(g) {
+                g.style.display = 'flex';
+                g.style.alignItems = 'center';
+                g.style.justifyContent = 'center';
+                g.style.gap = '8px';
+                g.style.margin = '14px 0';
+            },
+            insert(target, g) {
+                target.appendChild(g);
+            }
+        });
+    }
+
     switch (common.getSiteKey()) {
         case 'sc': initStripchat(); break;
         case 'cb': initChaturbate(); break;
         case 'cam4': initCam4(); break;
         case 'cs': initCamsoda(); break;
         case 'recu': initRecu(); break;
+        case 'cf': initChaturfier(); break;
     }
 })();
