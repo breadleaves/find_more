@@ -162,6 +162,11 @@
             ];
             buttons.find(b => b.id === 'recume-performer-button').dataset.sites = 'cb,recu';
             buttons.find(b => b.id === 'statbate-button').dataset.sites = 'cb,sc,cs,recu';
+            if (siteKey === 'recu') {
+                const cb = buttons.find(b => b.id === 'recume-performer-button');
+                buttons.splice(buttons.indexOf(cb), 1);
+                buttons.unshift(cb);
+            }
             return buttons;
         },
 
@@ -170,25 +175,27 @@
         },
 
         mountButtons(selector, config) {
-            let lastModel = null;
             let lastTarget = null;
             const observer = new MutationObserver(() => {
-                const modelName = common.getModelName();
                 const target = document.querySelector(selector);
-                if (!modelName || !target) return;
+                if (!target) return;
+
+                let modelName = config.modelName ? config.modelName() : null;
+                if (!modelName) modelName = common.getModelName();
+                if (!modelName) return;
 
                 const group = document.getElementById(config.id);
-                if (lastModel === modelName && lastTarget === target && group && group.isConnected) return;
+                if (group && group.dataset.model === modelName && lastTarget === target && group.isConnected) return;
 
                 if (group) group.remove();
 
                 const newGroup = document.createElement('div');
                 newGroup.id = config.id;
+                newGroup.dataset.model = modelName;
                 if (config.style) config.style(newGroup);
                 common.filterForSite(common.makeButtons(config.siteKey, modelName, config.cls), config.siteKey)
                     .forEach(btn => newGroup.appendChild(btn));
                 config.insert(target, newGroup);
-                lastModel = modelName;
                 lastTarget = target;
             });
             observer.observe(document.body, {childList: true, subtree: true});
@@ -294,6 +301,7 @@
             id: 'cam4finder-group',
             siteKey: 'cam4',
             cls: 'cam4finder-tab',
+            modelName: () => document.querySelector('span[class^="index__performerName__"]')?.textContent.trim() || common.getModelName(),
             style(g) {
                 g.style.display = 'flex';
                 g.style.alignItems = 'center';
@@ -324,6 +332,7 @@
             id: 'csfinder-group',
             siteKey: 'cs',
             cls: 'csfinder-tab',
+            modelName: () => document.querySelector('[class^="header-module__userTitle--"]')?.textContent.trim() || common.getModelName(),
             style(g) {
                 g.style.display = 'flex';
                 g.style.alignItems = 'center';
@@ -354,6 +363,7 @@
             id: 'recufinder-group',
             siteKey: 'recu',
             cls: 'recufinder-tab',
+            modelName: () => document.querySelector('.performer-info-text a.performer-link b')?.textContent.trim() || common.getModelName(),
             style(g) {
                 g.style.display = 'block';
                 g.style.marginTop = '12px';
