@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      2.5
+// @version      2.6
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -146,17 +146,17 @@
 
                 common.createButton(
                     'recume-performer-button',
-                    (siteKey === 'recu' || siteKey === 'cf')
-                        ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
-                       <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"/>
-                      </svg>`
-                        : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    siteKey === 'recu'
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                        <defs><linearGradient id="cbmark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d8b"/><stop offset="1" stop-color="#9b2ff2"/></linearGradient></defs>
                        <rect x="1" y="1" width="22" height="22" rx="7" fill="url(#cbmark)"/>
                        <circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="1.6"/>
                        <circle cx="12" cy="12" r="1.4" fill="#fff"/>
-                     </svg>`,
+                     </svg>`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"/>
+                      </svg>`,
                     () => {
                         const url = siteKey === 'recu' ? `https://chaturbate.com/${modelName}/` : `https://recu.me/performer/${modelName}`;
                         window.open(url, '_blank');
