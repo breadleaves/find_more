@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      2.8
+// @version      2.9
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -138,7 +138,8 @@
                     () => {
                         const urls = [
                             `https://forums.socialmediagirls.com/search/?q=${encodeURIComponent(modelName)}&o=relevance`,
-                            `https://simpcity.cr/search/?q=${encodeURIComponent(modelName)}&o=date`
+                            `https://simpcity.cr/search/?q=${encodeURIComponent(modelName)}&o=date`,
+                            `https://thirsthub.cc/search/?q=${encodeURIComponent(modelName)}&o=date`
                         ];
                         urls.forEach((url, i) => setTimeout(() => window.open(url, '_blank'), i * 200));
                     },
