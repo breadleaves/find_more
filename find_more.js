@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.0
+// @version      3.1
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -400,7 +400,7 @@
             id: 'csfinder-group',
             siteKey: 'cs',
             cls: 'csfinder-tab',
-            modelName: () => document.querySelector('[class^="header-module__userTitle--"]')?.textContent.trim() || common.getModelName(),
+            modelName: () => common.getModelName(),
             style(g) {
                 g.style.display = 'flex';
                 g.style.alignItems = 'center';
