@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.8
+// @version      3.9
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -336,18 +336,26 @@
         }
 
         let lastModel = null;
+        const ourButtonIds = ['simpcity-button', 'cgfinder-button', 'recume-button', 'search-button',
+                              'camwhores-button', 'forum-button', 'recume-performer-button',
+                              'chaturfier-button', 'statbate-button'];
         setInterval(() => {
             const model = common.getModelName();
-            if (!model || model === lastModel) return;
-            lastModel = model;
-
+            if (!model) return;
             const bar = document.querySelector('.tabBar');
             if (!bar) return;
 
-            ['simpcity-button','cgfinder-button','recume-button','search-button','camwhores-button','forum-button','recume-performer-button','chaturfier-button','statbate-button'].forEach(id => {
-                const el=document.getElementById(id); if(el) el.remove();
-            });
+            // Idempotent insert: only touch the DOM when the model changed OR the site
+            // re-rendered the tab bar and wiped our buttons (e.g. background tabs that
+            // load progressively). Otherwise this tick is a cheap no-op.
+            const allPresent = ourButtonIds.every(id => bar.contains(document.getElementById(id)));
+            if (model === lastModel && allPresent) return;
+            lastModel = model;
 
+            ourButtonIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.remove();
+            });
             common.filterForSite(common.makeButtons('cb', model, 'cgfinder-tab'), 'cb').reverse().forEach(btn => bar.insertBefore(btn, bar.firstChild));
         }, 1000);
     }
