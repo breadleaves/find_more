@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.4
+// @version      3.5
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -537,14 +537,17 @@
         const css = `
             .nrtool-tab {
                 display:inline-flex;align-items:center;justify-content:center;
-                width:26px;height:26px;
-                border-radius:6px;border:1px solid rgba(128,128,128,.55);
-                background:transparent;color:inherit;
-                text-decoration:none;transition:all .2s;cursor:pointer;
+                width:24px;height:22px;padding:0;
+                outline:0;cursor:pointer;text-align:center;
+                border:0;background:#f5f5f5;color:#000;border-radius:4px;
+                box-shadow:rgba(0,0,0,.05) 0px 1px 0px 0px,rgba(0,0,0,.2) 0px -1px 0px 0px inset;
+                line-height:1;text-decoration:none;
+                transition:background-color .3s;
             }
-            .nrtool-tab:hover{border-color:#f0a63e;color:#f0a63e;}
-            .nrtool-tab svg{width:15px;height:15px;stroke:currentColor;fill:none;}
-            .nrtool-tab.simpcity-button svg{fill:currentColor;stroke:currentColor;}
+            .nrtool-tab:hover{background:#ccc;}
+            .nrtool-tab:active{transform:translateY(1px);}
+            .nrtool-tab svg{width:13px;height:13px;stroke:#000;fill:none;display:block;}
+            .nrtool-tab.simpcity-button svg{fill:#000;stroke:#000;}
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
@@ -566,8 +569,8 @@
             style(g) {
                 g.style.display = 'flex';
                 g.style.alignItems = 'center';
-                g.style.gap = '8px';
-                g.style.marginTop = '6px';
+                g.style.gap = '5px';
+                g.style.marginTop = '5px';
             },
             modelName: () => (parse() || {}).model || null,
             factory(modelName) {
@@ -640,7 +643,7 @@
                 target.parentNode.insertBefore(g, target.nextSibling);
             }
         });
-        console.info(`[Find More Plus] 3.4 active on nrtool (key: ${key_now() || '?'})`);
+        console.info(`[Find More Plus] 3.5 active on nrtool (key: ${key_now() || '?'})`);
     }
 
     switch (common.getSiteKey()) {
