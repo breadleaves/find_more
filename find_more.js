@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.6
+// @version      3.7
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -545,19 +545,11 @@
         const key_now = () => (parse() || {}).key || null;
 
         const css = `
-            .nrtool-tab {
-                display:inline-flex;align-items:center;justify-content:center;
-                width:24px;height:22px;padding:0;
-                outline:0;cursor:pointer;text-align:center;
-                border:0;background:#f5f5f5;color:#000;border-radius:4px;
-                box-shadow:rgba(0,0,0,.05) 0px 1px 0px 0px,rgba(0,0,0,.2) 0px -1px 0px 0px inset;
-                line-height:1;text-decoration:none;
-                transition:background-color .3s;
-            }
-            .nrtool-tab:hover{background:#ccc;}
-            .nrtool-tab:active{transform:translateY(1px);}
-            .nrtool-tab svg{width:13px;height:13px;stroke:#000;fill:none;display:block;}
-            .nrtool-tab.simpcity-button svg{fill:#000;stroke:#000;}
+            /* Base look is applied inline on each button (inline beats any site CSS).
+               Stylesheet only handles hover/active, since those can't be inlined. */
+            .nrtool-tab:hover{background:#ccc !important;}
+            .nrtool-tab:active{background:#bbb !important;transform:translateY(1px);}
+            .nrtool-tab svg{width:13px;height:13px;display:block;}
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
@@ -571,6 +563,32 @@
         };
         // Reuse the CB badge SVG from the standard button set.
         const cbBadge = common.makeButtons('cb', '_', '').find(b => b.id === 'chaturbate-button').innerHTML;
+
+        // Pagination-style button with the look forced inline so the dark site theme
+        // (white button, black icon) can't be overridden by nrtool's own CSS.
+        const tab = (id, svg, onClick) => {
+            const a = common.createButton(id, svg, onClick, 'nrtool-tab');
+            Object.assign(a.style, {
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '24px',
+                height: '22px',
+                padding: '0',
+                background: '#f5f5f5',
+                color: '#000',
+                border: '0',
+                borderRadius: '4px',
+                lineHeight: '1',
+                textAlign: 'center',
+                textDecoration: 'none',
+                outline: '0',
+                cursor: 'pointer',
+                boxShadow: 'rgba(0,0,0,.05) 0px 1px 0px 0px, rgba(0,0,0,.2) 0px -1px 0px 0px inset',
+                transition: 'background-color .3s'
+            });
+            return a;
+        };
 
         common.mountButtons('.title', {
             id: 'nrtool-finder-group',
@@ -586,7 +604,7 @@
             factory(modelName) {
                 const cfg = common.SITES[key_now()];
                 const buttons = [
-                    common.createButton(
+                    tab(
                         'nrtool-cgfinder-button',
                         `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
@@ -595,7 +613,7 @@
                         'nrtool-tab'
                     ),
                     // Source-site performer page — key depends on the URL, not hard-set to cb
-                    common.createButton(
+                    tab(
                         'nrtool-source-button',
                         key_now() === 'cb' ? cbBadge : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 18.75h10.5m-10.5 0a1.5 1.5 0 0 1-1.5-1.5V6.75a1.5 1.5 0 0 1 1.5-1.5h2.25l1.5 1.5h6.75a1.5 1.5 0 0 1 1.5 1.5v9.75a1.5 1.5 0 0 1-1.5 1.5Z"/>
@@ -605,7 +623,7 @@
                     )
                 ];
                 if (key_now() === 'cb') {
-                    buttons.push(common.createButton(
+                    buttons.push(tab(
                         'nrtool-chaturfier-button',
                         `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                            <circle cx="12" cy="12" r="10"/>
@@ -621,7 +639,7 @@
                     ));
                 }
                 if (cfg.statbate) {
-                    buttons.push(common.createButton(
+                    buttons.push(tab(
                         'nrtool-statbate-button',
                         `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/>
@@ -630,7 +648,7 @@
                         'nrtool-tab'
                     ));
                 }
-                buttons.push(common.createButton(
+                buttons.push(tab(
                     'nrtool-camwhores-button',
                     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
@@ -639,7 +657,7 @@
                     () => window.open(`https://www.camwhores.tv/search/${modelName}/`, '_blank'),
                     'nrtool-tab'
                 ));
-                buttons.push(common.createButton(
+                buttons.push(tab(
                     'nrtool-simpcity-button',
                     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="currentColor" width="24" height="24">
                        <path fill="currentColor" fill-rule="evenodd" d="M23.073 30.075a10.19 10.19 0 0 1-1.142.064H16V35s-.806-.163-2-.623C10.586 33.064 4 29.33 4 20.07C4 14.51 8.508 10 14.07 10h7.86c4.852 0 8.903 3.431 9.857 8h4.158A8.056 8.056 0 0 1 44 26.056c0 7.279-5.828 10.29-9 11.389c-1.185.411-2 .555-2 .555v-3.889h-2.944a8.047 8.047 0 0 1-6.983-4.036ZM14 28.139v4.075a15.558 15.558 0 0 1-2.828-1.612C8.582 28.729 6 25.554 6 20.069A8.07 8.07 0 0 1 14.07 12h7.86a8.07 8.07 0 0 1 8.056 7.597a10.05 10.05 0 0 1-3.604 7.204a8.033 8.033 0 0 1-4.451 1.338H14Zm13.575.27a12.09 12.09 0 0 1-2.232 1.45a6.046 6.046 0 0 0 4.713 2.252H35v3.201a14.757 14.757 0 0 0 2.433-1.225C39.8 32.592 42 30.164 42 26.056A6.056 6.056 0 0 0 35.945 20H32v.07c0 3.469-1.755 6.529-4.425 8.34Z" clip-rule="evenodd"/>
@@ -653,7 +671,7 @@
                 target.parentNode.insertBefore(g, target.nextSibling);
             }
         });
-        console.info(`[Find More Plus] 3.5 active on nrtool (key: ${key_now() || '?'})`);
+        console.info(`[Find More Plus] 3.7 active on nrtool (key: ${key_now() || '?'})`);
     }
 
     switch (common.getSiteKey()) {
