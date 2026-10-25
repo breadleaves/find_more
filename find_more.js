@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.2
+// @version      3.3
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -18,6 +18,8 @@
 // @match        https://*.recu.me/*
 // @match        https://chaturfier.com/*
 // @match        https://*.chaturfier.com/*
+// @match        https://nrtool.st/*
+// @match        https://*.nrtool.st/*
 // @grant        none
 // ==/UserScript==
 
@@ -42,6 +44,7 @@
             if (host.includes('camsoda')) return 'cs';
             if (host.includes('recu.me')) return 'recu';
             if (host.includes('chaturfier')) return 'cf';
+            if (host.includes('nrtool.st')) return 'nrtool';
             return null;
         },
 
@@ -247,8 +250,10 @@
                 newGroup.id = config.id;
                 newGroup.dataset.model = modelName;
                 if (config.style) config.style(newGroup);
-                common.filterForSite(common.makeButtons(config.siteKey, modelName, config.cls), config.siteKey)
-                    .forEach(btn => newGroup.appendChild(btn));
+                const btns = config.factory
+                    ? config.factory(modelName)
+                    : common.filterForSite(common.makeButtons(config.siteKey, modelName, config.cls), config.siteKey);
+                btns.forEach(btn => newGroup.appendChild(btn));
                 config.insert(target, newGroup);
                 lastTarget = target;
             });
@@ -518,6 +523,121 @@
         }, true);
     }
 
+    function initNrtool() {
+        // nrtool URLs: /nrtool/history/<key>/<model>/<page-or-date>[?group_by=week], /nrtool/room/<key>/<model>
+        // Only registered keys (cb, sc, cam4, cs) get the button row.
+        const parse = () => {
+            const m = window.location.pathname.match(/^\/nrtool\/(?:history|room)\/([^/]+)\/([^/?#]+)/);
+            return (m && common.SITES[m[1]]) ? { key: m[1], model: m[2] } : null;
+        };
+        const parsed = parse();
+        if (!parsed) return;
+        const key_now = () => (parse() || {}).key || null;
+
+        const css = `
+            .nrtool-tab {
+                display:inline-flex;align-items:center;justify-content:center;
+                width:26px;height:26px;margin-left:10px;vertical-align:middle;
+                border-radius:6px;border:1px solid rgba(128,128,128,.55);
+                background:transparent;color:inherit;
+                text-decoration:none;transition:all .2s;cursor:pointer;
+            }
+            .nrtool-tab:hover{border-color:#f0a63e;color:#f0a63e;}
+            .nrtool-tab svg{width:15px;height:15px;stroke:currentColor;fill:none;}
+            .nrtool-tab.simpcity-button svg{fill:currentColor;stroke:currentColor;}
+        `;
+        document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
+
+        // Source-site profile URL is derived from the key in the URL,
+        // reusing the same keys we register for the source sites — never hard-set to cb.
+        const SOURCE_URLS = {
+            cb: 'https://chaturbate.com/',
+            sc: 'https://stripchat.com/',
+            cam4: 'https://www.cam4.com/',
+            cs: 'https://www.camsoda.com/'
+        };
+        // Reuse the CB badge SVG from the standard button set.
+        const cbBadge = common.makeButtons('cb', '_', '').find(b => b.id === 'chaturbate-button').innerHTML;
+
+        common.mountButtons(['.title__date .forum_link', '.title__date'], {
+            id: 'nrtool-finder-group',
+            siteKey: parsed.key,
+            cls: 'nrtool-tab',
+            modelName: () => (parse() || {}).model || null,
+            factory(modelName) {
+                const cfg = common.SITES[key_now()];
+                const buttons = [
+                    // Source-site performer page — key depends on the URL, not hard-set to cb
+                    common.createButton(
+                        'nrtool-source-button',
+                        key_now() === 'cb' ? cbBadge : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 18.75h10.5m-10.5 0a1.5 1.5 0 0 1-1.5-1.5V6.75a1.5 1.5 0 0 1 1.5-1.5h2.25l1.5 1.5h6.75a1.5 1.5 0 0 1 1.5 1.5v9.75a1.5 1.5 0 0 1-1.5 1.5Z"/>
+                         </svg>`,
+                        () => window.open(`${SOURCE_URLS[key_now()]}${modelName}/`, '_blank'),
+                        'nrtool-tab'
+                    )
+                ];
+                if (key_now() === 'cb') {
+                    buttons.push(common.createButton(
+                        'nrtool-chaturfier-button',
+                        `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                           <circle cx="12" cy="12" r="10"/>
+                           <line x1="14.31" y1="8" x2="20.05" y2="17.94"/>
+                           <line x1="9.69" y1="8" x2="21.17" y2="8"/>
+                           <line x1="7.38" y1="12" x2="13.12" y2="2.06"/>
+                           <line x1="9.69" y1="16" x2="3.95" y2="6.06"/>
+                           <line x1="14.31" y1="16" x2="2.83" y2="16"/>
+                           <line x1="16.62" y1="12" x2="10.88" y2="21.94"/>
+                         </svg>`,
+                        () => window.open(`https://chaturfier.com/cams/${modelName}/`, '_blank'),
+                        'nrtool-tab'
+                    ));
+                }
+                buttons.push(common.createButton(
+                    'nrtool-cgfinder-button',
+                    `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                     </svg>`,
+                    () => window.open(`https://camgirlfinder.net/models/${cfg.cgfinder}/${modelName}`, '_blank'),
+                    'nrtool-tab'
+                ));
+                if (cfg.statbate) {
+                    buttons.push(common.createButton(
+                        'nrtool-statbate-button',
+                        `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/>
+                         </svg>`,
+                        () => window.open(`https://statbate.com/search/${cfg.statbate}/${modelName}`, '_blank'),
+                        'nrtool-tab'
+                    ));
+                }
+                buttons.push(common.createButton(
+                    'nrtool-camwhores-button',
+                    `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"/>
+                     </svg>`,
+                    () => window.open(`https://www.camwhores.tv/search/${modelName}/`, '_blank'),
+                    'nrtool-tab'
+                ));
+                buttons.push(common.createButton(
+                    'nrtool-simpcity-button',
+                    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="currentColor" width="24" height="24">
+                       <path fill="currentColor" fill-rule="evenodd" d="M23.073 30.075a10.19 10.19 0 0 1-1.142.064H16V35s-.806-.163-2-.623C10.586 33.064 4 29.33 4 20.07C4 14.51 8.508 10 14.07 10h7.86c4.852 0 8.903 3.431 9.857 8h4.158A8.056 8.056 0 0 1 44 26.056c0 7.279-5.828 10.29-9 11.389c-1.185.411-2 .555-2 .555v-3.889h-2.944a8.047 8.047 0 0 1-6.983-4.036ZM14 28.139v4.075a15.558 15.558 0 0 1-2.828-1.612C8.582 28.729 6 25.554 6 20.069A8.07 8.07 0 0 1 14.07 12h7.86a8.07 8.07 0 0 1 8.056 7.597a10.05 10.05 0 0 1-3.604 7.204a8.033 8.033 0 0 1-4.451 1.338H14Zm13.575.27a12.09 12.09 0 0 1-2.232 1.45a6.046 6.046 0 0 0 4.713 2.252H35v3.201a14.757 14.757 0 0 0 2.433-1.225C39.8 32.592 42 30.164 42 26.056A6.056 6.056 0 0 0 35.945 20H32v.07c0 3.469-1.755 6.529-4.425 8.34Z" clip-rule="evenodd"/>
+                     </svg>`,
+                    () => window.open(`https://nobodyhome.ws/search.php?action=do_search&postthread=1&keywords=${modelName}`, '_blank'),
+                    'nrtool-tab simpcity-button'
+                ));
+                return buttons;
+            },
+            insert(target, g) {
+                if (target.classList.contains('title__date')) target.appendChild(g);
+                else target.parentNode.insertBefore(g, target);
+            }
+        });
+        console.info(`[Find More Plus] 3.3 active on nrtool (key: ${key_now() || '?'})`);
+    }
+
     switch (common.getSiteKey()) {
         case 'sc': initStripchat(); break;
         case 'cb': initChaturbate(); break;
@@ -525,5 +645,6 @@
         case 'cs': initCamsoda(); break;
         case 'recu': initRecu(); break;
         case 'cf': initChaturfier(); break;
+        case 'nrtool': initNrtool(); break;
     }
 })();
