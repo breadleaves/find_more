@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.5
+// @version      3.6
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -20,11 +20,21 @@
 // @match        https://*.chaturfier.com/*
 // @match        https://nrtool.st/*
 // @match        https://*.nrtool.st/*
+// @match        https://nrtool.to/*
+// @match        https://*.nrtool.to/*
 // @grant        none
 // ==/UserScript==
 
 (function () {
     'use strict';
+
+    // Redirect the old nrtool.to domain to the current nrtool.st, preserving path/query/hash.
+    if (window.location.hostname.includes('nrtool.to')) {
+        window.location.replace(
+            `https://nrtool.st${window.location.pathname}${window.location.search}${window.location.hash}`
+        );
+        return; // nothing else matters during a redirect
+    }
 
     const common = {
         SITES: {
