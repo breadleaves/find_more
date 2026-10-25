@@ -485,7 +485,8 @@
             const scope = (root && root.querySelectorAll) ? root : document;
             for (const a of scope.querySelectorAll('a[href*="/out/cb/"]')) {
                 const m = (a.getAttribute('href') || '').match(/\/out\/cb\/([^/?#]+)/);
-                if (m) a.href = `https://chaturbate.com/${m[1]}/`;
+                // Skip slugs that aren't model profiles (e.g. user-reg signup links)
+                if (m && m[1] !== 'user-reg') a.href = `https://chaturbate.com/${m[1]}/`;
             }
         };
         rewriteOutLinks(document);
@@ -502,6 +503,7 @@
                 });
             }
         }).observe(document.body, {childList: true, subtree: true, attributes: true});
+        console.info('[Find More Plus] 3.2 active on chaturfier');
 
         // Fallback: some links have a JS click handler bound to the redirect,
         // so also intercept clicks (capture phase, before the site's handler).
