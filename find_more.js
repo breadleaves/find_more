@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.3
+// @version      3.4
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -537,7 +537,7 @@
         const css = `
             .nrtool-tab {
                 display:inline-flex;align-items:center;justify-content:center;
-                width:26px;height:26px;margin-left:10px;vertical-align:middle;
+                width:26px;height:26px;
                 border-radius:6px;border:1px solid rgba(128,128,128,.55);
                 background:transparent;color:inherit;
                 text-decoration:none;transition:all .2s;cursor:pointer;
@@ -559,14 +559,28 @@
         // Reuse the CB badge SVG from the standard button set.
         const cbBadge = common.makeButtons('cb', '_', '').find(b => b.id === 'chaturbate-button').innerHTML;
 
-        common.mountButtons(['.title__date .forum_link', '.title__date'], {
+        common.mountButtons('.title', {
             id: 'nrtool-finder-group',
             siteKey: parsed.key,
             cls: 'nrtool-tab',
+            style(g) {
+                g.style.display = 'flex';
+                g.style.alignItems = 'center';
+                g.style.gap = '8px';
+                g.style.marginTop = '6px';
+            },
             modelName: () => (parse() || {}).model || null,
             factory(modelName) {
                 const cfg = common.SITES[key_now()];
                 const buttons = [
+                    common.createButton(
+                        'nrtool-cgfinder-button',
+                        `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                         </svg>`,
+                        () => window.open(`https://camgirlfinder.net/models/${cfg.cgfinder}/${modelName}`, '_blank'),
+                        'nrtool-tab'
+                    ),
                     // Source-site performer page — key depends on the URL, not hard-set to cb
                     common.createButton(
                         'nrtool-source-button',
@@ -593,14 +607,6 @@
                         'nrtool-tab'
                     ));
                 }
-                buttons.push(common.createButton(
-                    'nrtool-cgfinder-button',
-                    `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
-                       <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                     </svg>`,
-                    () => window.open(`https://camgirlfinder.net/models/${cfg.cgfinder}/${modelName}`, '_blank'),
-                    'nrtool-tab'
-                ));
                 if (cfg.statbate) {
                     buttons.push(common.createButton(
                         'nrtool-statbate-button',
@@ -631,11 +637,10 @@
                 return buttons;
             },
             insert(target, g) {
-                if (target.classList.contains('title__date')) target.appendChild(g);
-                else target.parentNode.insertBefore(g, target);
+                target.parentNode.insertBefore(g, target.nextSibling);
             }
         });
-        console.info(`[Find More Plus] 3.3 active on nrtool (key: ${key_now() || '?'})`);
+        console.info(`[Find More Plus] 3.4 active on nrtool (key: ${key_now() || '?'})`);
     }
 
     switch (common.getSiteKey()) {
