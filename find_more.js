@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.7
+// @version      3.8
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -553,17 +553,6 @@
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
-        // Source-site profile URL is derived from the key in the URL,
-        // reusing the same keys we register for the source sites — never hard-set to cb.
-        const SOURCE_URLS = {
-            cb: 'https://chaturbate.com/',
-            sc: 'https://stripchat.com/',
-            cam4: 'https://www.cam4.com/',
-            cs: 'https://www.camsoda.com/'
-        };
-        // Reuse the CB badge SVG from the standard button set.
-        const cbBadge = common.makeButtons('cb', '_', '').find(b => b.id === 'chaturbate-button').innerHTML;
-
         // Pagination-style button with the look forced inline so the dark site theme
         // (white button, black icon) can't be overridden by nrtool's own CSS.
         const tab = (id, svg, onClick) => {
@@ -610,15 +599,6 @@
                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                          </svg>`,
                         () => window.open(`https://camgirlfinder.net/models/${cfg.cgfinder}/${modelName}`, '_blank'),
-                        'nrtool-tab'
-                    ),
-                    // Source-site performer page — key depends on the URL, not hard-set to cb
-                    tab(
-                        'nrtool-source-button',
-                        key_now() === 'cb' ? cbBadge : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 18.75h10.5m-10.5 0a1.5 1.5 0 0 1-1.5-1.5V6.75a1.5 1.5 0 0 1 1.5-1.5h2.25l1.5 1.5h6.75a1.5 1.5 0 0 1 1.5 1.5v9.75a1.5 1.5 0 0 1-1.5 1.5Z"/>
-                         </svg>`,
-                        () => window.open(`${SOURCE_URLS[key_now()]}${modelName}/`, '_blank'),
                         'nrtool-tab'
                     )
                 ];
@@ -671,7 +651,7 @@
                 target.parentNode.insertBefore(g, target.nextSibling);
             }
         });
-        console.info(`[Find More Plus] 3.7 active on nrtool (key: ${key_now() || '?'})`);
+        console.info(`[Find More Plus] 3.8 active on nrtool (key: ${key_now() || '?'})`);
     }
 
     switch (common.getSiteKey()) {
