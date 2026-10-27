@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      3.9
+// @version      4
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -322,7 +322,8 @@
         `;
         document.head.appendChild(Object.assign(document.createElement("style"), {textContent: css}));
 
-        const nativeTab = document.querySelector('.tabBar a');
+        const nativeTab = document.querySelector('.tabBar a')
+            || document.querySelector('.top-section a.gender-tab');
         if (nativeTab) {
             nativeTab.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
             const clone = nativeTab.cloneNode(true);
@@ -340,9 +341,16 @@
                               'camwhores-button', 'forum-button', 'recume-performer-button',
                               'chaturfier-button', 'statbate-button'];
         setInterval(() => {
-            const model = common.getModelName();
+            let model = common.getModelName();
+            // Legacy layout (e.g. banned rooms): the active tab's title holds "<Model>'s Cam".
+            if (!model) {
+                const t = document.querySelector('.top-section a.gender-tab.activeRoom')?.title || '';
+                model = (t.match(/^(.+)'s Cam$/) || [])[1] || null;
+            }
             if (!model) return;
-            const bar = document.querySelector('.tabBar');
+            // Current (React) tab bar, or the legacy tab strip used on banned/legacy pages.
+            const bar = document.querySelector('.tabBar')
+                || document.querySelector('.top-section a.gender-tab')?.parentElement;
             if (!bar) return;
 
             // Idempotent insert: only touch the DOM when the model changed OR the site
