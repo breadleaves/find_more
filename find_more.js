@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Find More Plus
-// @version      4.1
+// @version      4.2
 // @license MIT
 // @description  Find more about your favorite camgirl
 // @icon         https://stripchat.com/favicon.ico
@@ -32,6 +32,18 @@
     if (window.location.hostname.includes('nrtool.to')) {
         window.location.replace(
             `https://nrtool.st${window.location.pathname}${window.location.search}${window.location.hash}`
+        );
+        return; // nothing else matters during a redirect
+    }
+
+    // Language subdomains (de/fr/es/... chaturbate.com) serve the same rooms —
+    // bounce them to the plain domain so pages and buttons always behave consistently.
+    const cbLang = window.location.hostname.match(
+        /^(de|es|fr|it|hu|nl|pl|pt|ro|ru|sv|tr|ja|ko|zh|cs|da|fi|el|no|bg|uk|he|ar|th|vi|id)\.chaturbate\.com$/i
+    );
+    if (cbLang) {
+        window.location.replace(
+            `https://chaturbate.com${window.location.pathname}${window.location.search}${window.location.hash}`
         );
         return; // nothing else matters during a redirect
     }
